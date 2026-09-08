@@ -11,8 +11,8 @@ export type ModelChoice = {
 export type Mode = keyof typeof MODELS;
 
 const MODELS = Object.freeze({
-    fast: { provider: "openrouter", model: "openai/gpt-5.6-luna", effort: "off" },
-    deep: { provider: "openrouter", model: "openai/gpt-5.6-luna", effort: "off" },
+    fast: { provider: "openrouter", model: "openai/gpt-5.6-luna", effort: "max" },
+    deep: { provider: "openrouter", model: "openai/gpt-5.6-luna", effort: "max" },
 } as const satisfies Record<string, ModelChoice>);
 
 export function getModels(): Readonly<Record<Mode, ModelChoice>> {

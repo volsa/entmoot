@@ -10,7 +10,9 @@ const FINDING_SCHEMA = Type.Object({
     line: Type.Integer({ description: "Line in the new version of the file" }),
     column: Type.Optional(Type.Integer()),
     severity: Type.Union([Type.Literal("P0"), Type.Literal("P1"), Type.Literal("P2"), Type.Literal("P3")]),
-    message: Type.String({ description: "What is wrong, and why it matters" }),
+    message: Type.String({
+        description: "Concise, at most three sentences: the defect and its effect, nothing else",
+    }),
 });
 
 export type Finding = Static<typeof FINDING_SCHEMA>;

@@ -30,6 +30,20 @@ npx github:volsa/entmoot review
 ```
 
 
+## GitHub Actions
+
+On a pull request, Entmoot posts its findings as one new comment per run. Add `ENTMOOT_OPENROUTER_API_KEY` as a
+repository secret and commit a workflow like [the one reviewing Entmoot itself](.github/workflows/entmoot.yml),
+running a pinned revision of the tool instead of building it:
+
+```yaml
+- run: npx github:volsa/entmoot#<commit sha> review
+  env:
+      ENTMOOT_OPENROUTER_API_KEY: ${{ secrets.ENTMOOT_OPENROUTER_API_KEY }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+```
+
+
 ## Safety
 
 Being a read-only harness, Entmoot eliminates most attack vectors. Secret leakage, however, is still

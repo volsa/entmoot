@@ -122,18 +122,20 @@ export function createReporter(context: Context): Reporter {
         formatComment(results: AgentResult[], elapsedMs: number) {
             const { findings, notes, headline } = summarize(results, elapsedMs);
 
-            // One paragraph per line, since Markdown merges adjacent lines
             const base = `\`${context.mergeBaseSha.slice(0, 7)}\` (${origin.baseRef})`;
             const tip = `\`${context.headSha.slice(0, 7)}\` (${origin.headRef})`;
             const colon = findings.length === 0 ? "" : ":";
+
+            // Blank lines separate the headline, the findings list, and the notes
+            const items = findings.map(
+                (finding) => `- **${finding.severity}** \`${location(finding)}\`: ${finding.message}`,
+            );
             const remarks =
-                notes.length === 0 ? [] : [["**Notes:**", ...notes.map((note) => `- ${note}`)].join("\n")];
+                notes.length === 0 ? [] : [["Notes:", ...notes.map((note) => `- ${note}`)].join("\n")];
 
             return [
-                `**${headline}** between ${base} and ${tip}${colon}`,
-                ...findings.map(
-                    (finding) => `**${finding.severity}** \`${location(finding)}\` ${finding.message}`,
-                ),
+                `${headline} between ${base} and ${tip}${colon}`,
+                ...(items.length === 0 ? [] : [items.join("\n")]),
                 ...remarks,
             ].join("\n\n");
         },

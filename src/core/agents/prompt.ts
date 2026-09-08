@@ -22,7 +22,7 @@ Guidelines:
 - Report only verified problems that the branch introduces or touches, never speculation.
 - Do not be nitpicky, unless the skill asks you to be.
 - When nothing is left to report, end your turn with a single line saying so instead of calling \`${reportTool}\`.
-- Reported finding should have a concise description
+- Keep findings concise, at most three sentences: the defect and its effect, nothing else.
 
 <skill name="${skill.name}" path="${skill.path}">
 ${skill.content.trim()}

@@ -145,7 +145,9 @@ export function createReporter(context: Context): Reporter {
 function summarize(results: AgentResult[], elapsedMs: number): Summary {
     const findings = results
         .flatMap((result) => result.findings)
-        .toSorted((a, b) => a.file.localeCompare(b.file) || a.line - b.line);
+        .toSorted(
+            (a, b) => a.severity.localeCompare(b.severity) || a.file.localeCompare(b.file) || a.line - b.line,
+        );
     const failures = results.filter((result) => result.error !== undefined);
 
     // Remarks about skills that failed or stopped early

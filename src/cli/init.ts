@@ -1,4 +1,3 @@
 export function runInit(): void {
-    // TODO: scaffold the Entmoot config and workflow into the project
-    console.log("entmoot init: not implemented yet");
+    console.log("entmoot init: not implemented yet"); // TODO: scaffold project config and workflow
 }

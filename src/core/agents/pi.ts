@@ -17,7 +17,7 @@ import {
 import type { Context } from "../context.js";
 import type { Credentials } from "../credentials.js";
 import type { Skill } from "../skills.js";
-import { getModels, type Mode } from "./model.js";
+import { getModels, type Mode, type ModelChoice } from "./model.js";
 import { buildSystemPrompt, buildUserPrompt } from "./prompt.js";
 import { createReportFindingTool, type Finding } from "./tools/report-finding.js";
 
@@ -54,10 +54,10 @@ export async function prepare(credentials: Credentials): Promise<AgentRunner> {
         credentials: new InMemoryCredentialStore(),
         modelsPath: null,
     });
-    await modelRuntime.setRuntimeApiKey("openrouter", credentials.openrouter);
+    await modelRuntime.setRuntimeApiKey(credentials.provider, credentials.apiKey);
 
     // Validate configured models before starting agents
-    const choices = getModels();
+    const choices = getModels(credentials.provider);
     const errors: string[] = [];
 
     for (const mode of Object.keys(choices) as Mode[]) {
@@ -79,12 +79,14 @@ export async function prepare(credentials: Credentials): Promise<AgentRunner> {
     }
 
     return {
-        run: (skill, context, diff, onProgress) => runAgent(modelRuntime, skill, context, diff, onProgress),
+        run: (skill, context, diff, onProgress) =>
+            runAgent(modelRuntime, choices[skill.entmoot.mode], skill, context, diff, onProgress),
     };
 }
 
 async function runAgent(
     modelRuntime: ModelRuntime,
+    choice: ModelChoice,
     skill: Skill,
     context: Context,
     diff: string,
@@ -95,7 +97,6 @@ async function runAgent(
     const reportFinding = createReportFindingTool(findings);
 
     try {
-        const choice = getModels()[skill.entmoot.mode];
         const model = modelRuntime.getModel(choice.provider, choice.model);
         if (model === undefined) {
             throw new Error(`unreachable: missing model ${choice.provider}/${choice.model}`);

@@ -14,9 +14,9 @@ import { createReporter } from "./reporter.js";
 export async function runReview(): Promise<void> {
     const started = Date.now();
     const context = resolveContext();
-    const reporter = createReporter(context);
-
     const credentials = loadCredentials(context.origin.kind === "pull-request");
+
+    const reporter = createReporter(context, credentials.provider);
     reporter.printCredentials();
 
     // Stop when there is nothing to review

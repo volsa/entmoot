@@ -1,13 +1,45 @@
 /**
- * Loads provider and forge credentials from the environment and verifies them with the provider.
+ * Loads provider and forge credentials from the environment and verifies them with the provider. Exactly one
+ * provider key may be set, the provider being chosen by whichever key is present.
  */
 
 import { existsSync } from "node:fs";
 
+export type Provider = keyof typeof PROVIDERS;
+
 export type Credentials = {
-    openrouter: string;
+    provider: Provider;
+    apiKey: string;
     github: string | undefined;
 };
+
+type ProviderAuth = {
+    name: string;
+    variable: string; // environment variable holding the API key
+    url: string; // authenticated endpoint that verifies the key without spending tokens
+    headers?: Record<string, string>;
+};
+
+// TODO: let a config option choose the provider once one exists, instead of rejecting several keys. For
+//       example a `providers=openai,openrouter,anthropic` in entmoot.toml once that exists.
+export const PROVIDERS = {
+    openrouter: {
+        name: "OpenRouter",
+        variable: "ENTMOOT_OPENROUTER_API_KEY",
+        url: "https://openrouter.ai/api/v1/key",
+    },
+    openai: {
+        name: "OpenAI",
+        variable: "ENTMOOT_OPENAI_API_KEY",
+        url: "https://api.openai.com/v1/models",
+    },
+    anthropic: {
+        name: "Anthropic",
+        variable: "ENTMOOT_ANTHROPIC_API_KEY",
+        url: "https://api.anthropic.com/v1/models",
+        headers: { "anthropic-version": "2023-06-01" },
+    },
+} as const satisfies Record<string, ProviderAuth>;
 
 export function loadCredentials(pullRequest: boolean): Credentials {
     // Load local environment defaults
@@ -15,9 +47,21 @@ export function loadCredentials(pullRequest: boolean): Credentials {
         process.loadEnvFile(".env");
     }
 
-    const openrouter = process.env.ENTMOOT_OPENROUTER_API_KEY;
-    if (!openrouter) {
-        throw new Error("missing ENTMOOT_OPENROUTER_API_KEY in the environment");
+    // Select the single provider whose key is set
+    const providers = Object.keys(PROVIDERS) as Provider[];
+    const found = providers.flatMap((provider) => {
+        const apiKey = process.env[PROVIDERS[provider].variable];
+        return apiKey ? [{ provider, apiKey }] : [];
+    });
+
+    const [selected, ...extra] = found;
+    if (selected === undefined) {
+        throw new Error(`missing a provider API key in the environment; set one of ${variables(providers)}`);
+    }
+
+    if (extra.length > 0) {
+        const set = variables(found.map((entry) => entry.provider));
+        throw new Error(`found ${set} in the environment; set exactly one provider API key`);
     }
 
     const github = process.env.GITHUB_TOKEN;
@@ -25,17 +69,20 @@ export function loadCredentials(pullRequest: boolean): Credentials {
         throw new Error("missing GITHUB_TOKEN in the environment");
     }
 
-    return { openrouter, github };
+    return { ...selected, github };
 }
 
 export async function verifyCredentials(credentials: Credentials): Promise<void> {
-    const response = await fetch("https://openrouter.ai/api/v1/auth/key", {
-        headers: { authorization: `Bearer ${credentials.openrouter}` },
-    }); // verifies without spending tokens
+    const { name, variable, url, headers } = PROVIDERS[credentials.provider] as ProviderAuth;
+    const response = await fetch(url, {
+        headers: { ...headers, authorization: `Bearer ${credentials.apiKey}` },
+    });
 
     if (!response.ok) {
-        throw new Error(
-            `OpenRouter rejected ENTMOOT_OPENROUTER_API_KEY (${response.status} ${response.statusText})`,
-        );
+        throw new Error(`${name} rejected ${variable} (${response.status} ${response.statusText})`);
     }
+}
+
+function variables(providers: Provider[]): string {
+    return providers.map((provider) => PROVIDERS[provider].variable).join(", ");
 }

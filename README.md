@@ -32,9 +32,8 @@ npx github:volsa/entmoot review
 
 ## GitHub Actions
 
-On a pull request, Entmoot posts its findings as one new comment per run. Add exactly one of
-`ENTMOOT_OPENROUTER_API_KEY`, `ENTMOOT_OPENAI_API_KEY`, or `ENTMOOT_ANTHROPIC_API_KEY` as a repository secret,
-which selects the provider, and commit a workflow like
+On a pull request, Entmoot posts its findings as one new comment per run. Add either `ENTMOOT_OPENROUTER_API_KEY`
+or `ENTMOOT_OPENAI_API_KEY` as a repository secret, which selects the provider, and commit a workflow like
 [the one reviewing Entmoot itself](.github/workflows/entmoot.yml), running a pinned revision of the tool instead
 of building it:
 

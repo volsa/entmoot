@@ -17,11 +17,10 @@ type ProviderAuth = {
     name: string;
     variable: string; // environment variable holding the API key
     url: string; // authenticated endpoint that verifies the key without spending tokens
-    headers?: Record<string, string>;
 };
 
 // TODO: let a config option choose the provider once one exists, instead of rejecting several keys. For
-//       example a `providers=openai,openrouter,anthropic` in entmoot.toml once that exists.
+//       example a `providers=openai,openrouter` in entmoot.toml once that exists.
 export const PROVIDERS = {
     openrouter: {
         name: "OpenRouter",
@@ -32,12 +31,6 @@ export const PROVIDERS = {
         name: "OpenAI",
         variable: "ENTMOOT_OPENAI_API_KEY",
         url: "https://api.openai.com/v1/models",
-    },
-    anthropic: {
-        name: "Anthropic",
-        variable: "ENTMOOT_ANTHROPIC_API_KEY",
-        url: "https://api.anthropic.com/v1/models",
-        headers: { "anthropic-version": "2023-06-01" },
     },
 } as const satisfies Record<string, ProviderAuth>;
 
@@ -73,10 +66,8 @@ export function loadCredentials(pullRequest: boolean): Credentials {
 }
 
 export async function verifyCredentials(credentials: Credentials): Promise<void> {
-    const { name, variable, url, headers } = PROVIDERS[credentials.provider] as ProviderAuth;
-    const response = await fetch(url, {
-        headers: { ...headers, authorization: `Bearer ${credentials.apiKey}` },
-    });
+    const { name, variable, url } = PROVIDERS[credentials.provider];
+    const response = await fetch(url, { headers: { authorization: `Bearer ${credentials.apiKey}` } });
 
     if (!response.ok) {
         throw new Error(`${name} rejected ${variable} (${response.status} ${response.statusText})`);

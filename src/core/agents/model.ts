@@ -19,7 +19,6 @@ const EFFORT = { fast: "max", deep: "max" } as const satisfies Record<Mode, Effo
 const MODELS = {
     openrouter: { fast: "openai/gpt-5.6-luna", deep: "openai/gpt-5.6-luna" },
     openai: { fast: "gpt-5.6-luna", deep: "gpt-5.6-luna" },
-    anthropic: { fast: "claude-sonnet-5", deep: "claude-opus-5" },
 } as const satisfies Record<Provider, Record<Mode, string>>;
 
 export function getModels(provider: Provider): Readonly<Record<Mode, ModelChoice>> {

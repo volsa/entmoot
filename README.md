@@ -41,7 +41,7 @@ of building it:
 ```yaml
 - run: npx github:volsa/entmoot#<commit sha> review
   env:
-      ENTMOOT_OPENROUTER_API_KEY: ${{ secrets.ENTMOOT_OPENROUTER_API_KEY }}
+      ENTMOOT_OPENAI_API_KEY: ${{ secrets.ENTMOOT_OPENAI_API_KEY }}
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 

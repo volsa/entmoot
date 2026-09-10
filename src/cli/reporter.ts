@@ -9,6 +9,7 @@ import { getModels } from "../core/agents/model.js";
 import type { AgentResult, AgentStats } from "../core/agents/pi.js";
 import type { Finding } from "../core/agents/tools/report-finding.js";
 import type { Context } from "../core/context.js";
+import { PROVIDERS, type Provider } from "../core/credentials.js";
 import type { Diagnostic, Skill } from "../core/skills.js";
 
 export type Reporter = {
@@ -46,14 +47,15 @@ const red = (text: string): string => paint("31", text);
 const orange = (text: string): string => paint("38;5;208", text);
 const gray = (text: string): string => paint("90", text);
 
-export function createReporter(context: Context): Reporter {
+export function createReporter(context: Context, provider: Provider): Reporter {
     const { origin, changes } = context;
     const head = origin.kind === "local" ? `the working tree of ${origin.headRef}` : origin.headRef;
     const branches = `between ${origin.baseRef} and ${head}`;
 
     return {
         printCredentials() {
-            console.log("Found OpenRouter API key");
+            const { name, variable } = PROVIDERS[provider];
+            console.log(`Found ${name} API key in ${variable}`);
         },
 
         printChanges() {
@@ -88,7 +90,7 @@ export function createReporter(context: Context): Reporter {
             }
 
             const rows: Row[] = skills.map((skill) => {
-                const choice = getModels()[skill.entmoot.mode];
+                const choice = getModels(provider)[skill.entmoot.mode];
                 const model = `${choice.provider}:${choice.model}/${choice.effort}`;
                 return { skill, model, stats: { cost: 0, findings: 0 }, state: "running" };
             });

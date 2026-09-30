@@ -14,7 +14,7 @@ export type ModelChoice = {
 
 type Effort = "off" | "low" | "medium" | "high" | "max";
 
-const EFFORT = { fast: "medium", deep: "medium" } as const satisfies Record<Mode, Effort>;
+const EFFORT = { fast: "medium", deep: "high" } as const satisfies Record<Mode, Effort>;
 
 const MODELS = {
     openrouter: { fast: "openai/gpt-6-luna", deep: "openai/gpt-6.1-sol" },

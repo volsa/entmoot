@@ -14,11 +14,11 @@ export type ModelChoice = {
 
 type Effort = "off" | "low" | "medium" | "high" | "max";
 
-const EFFORT = { fast: "max", deep: "max" } as const satisfies Record<Mode, Effort>;
+const EFFORT = { fast: "medium", deep: "medium" } as const satisfies Record<Mode, Effort>;
 
 const MODELS = {
-    openrouter: { fast: "openai/gpt-6-sol", deep: "openai/gpt-6-sol" },
-    openai: { fast: "gpt-6-sol", deep: "gpt-6-sol" },
+    openrouter: { fast: "openai/gpt-6-luna", deep: "openai/gpt-6.1-sol" },
+    openai: { fast: "gpt-6-luna", deep: "gpt-6.1-sol" },
 } as const satisfies Record<Provider, Record<Mode, string>>;
 
 export function getModels(provider: Provider): Readonly<Record<Mode, ModelChoice>> {
